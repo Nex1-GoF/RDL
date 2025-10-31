@@ -1,6 +1,6 @@
 #include <iostream>
 #include "packet/HeaderPacket.hpp"
-#include "Network.hpp"
+#include "SocketMananger.hpp"
 
 int main() {
 
@@ -20,4 +20,5 @@ int main() {
     network.setup_sockets();
     
     return 0;
+
 }
