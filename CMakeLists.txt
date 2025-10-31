@@ -11,8 +11,8 @@ project(
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# include 디렉토리 추가
-include_directories(include)
-
 # 실행 파일 생성
-add_executable(program src/main.cpp)
+add_executable(program src/main.cpp src/packet/HeaderPacket.cpp)
+
+# 헤더 경로 추가
+target_include_directories(program PRIVATE ${CMAKE_SOURCE_DIR}/include)
