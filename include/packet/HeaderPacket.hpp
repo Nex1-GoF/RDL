@@ -22,8 +22,6 @@ class HeaderPacket {
         ~HeaderPacket() = default;
         HeaderPacket deserialize(const uint8_t* data);
         void serialize(uint8_t* buffer);
-        #include <iostream>
-
         void print() const {
         std::cout << "HeaderPacket("
                   << "src_type=" << src_type << ", "
@@ -33,7 +31,16 @@ class HeaderPacket {
                   << "seq=" << seq << ", "
                   << "msg_size=" << static_cast<unsigned>(msg_size)
                   << ")" << std::endl;
-    }
+        }
+        char getDestType() const {
+            return dest_type;
+        }
+        char getDestId() const {
+            return dest_id;
+        }
+        uint32_t getSeq() const {
+            return seq;
+        }
 };
 
 #endif

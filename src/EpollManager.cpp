@@ -1,4 +1,5 @@
 #include "EpollManager.hpp"
+#include "packet/HeaderPacket.hpp"
 #include <iostream>
 
 using namespace std;
@@ -44,10 +45,21 @@ void EpollManager::waitAndHandle(const char *hello)
                                             (sockaddr *)&clientAddr, &len);
                     if (recvsize > 0)
                     {
-                        buffer[recvsize] = '\0';
-                        printf("Client: %s\n", buffer);
+                        HeaderPacket header;
+                        header = header.deserialize((uint8_t *)buffer);
+                        header.print();
 
-                        sendto(curfd, hello, strlen(hello), 0,
+                        // buffer[recvsize] = '\0';
+                        // printf("Client: %s\n", buffer);
+
+                        HeaderPacket responseHeader('D', '2',
+                             header.getDestType(), header.getDestId(), header.getSeq(), 9);
+                        
+                        uint8_t data[9];
+                        responseHeader.serialize(data);
+                        
+
+                        sendto(curfd, data, sizeof(data), 0,
                                (const sockaddr *)&clientAddr, len);
                         std::cout << "Hello message sent." << std::endl;
 

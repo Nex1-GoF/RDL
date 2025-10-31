@@ -18,8 +18,5 @@ add_executable(program
                 src/SocketManager.cpp 
                 src/EpollManager.cpp)
 
-# file(GLOB SRC_FILES "src/*.cpp" "src/**/*.cpp")
-# add_executable(program ${SRC_FILES})
-
 # 헤더 경로 추가
 target_include_directories(program PRIVATE ${CMAKE_SOURCE_DIR}/include)
