@@ -1,4 +1,4 @@
-#include "MSLComPacket.hpp"
+#include "packet/MslComPacket.hpp"
 using namespace std;
 
 void MslComPacket::serialize(uint8_t* buffer) const {

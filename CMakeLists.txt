@@ -15,6 +15,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable(program 
                 src/main.cpp
                 src/packet/HeaderPacket.cpp
+                src/packet/MslComPacket.cpp
+                src/packet/MslInfoPacket.cpp
+                src/packet/TgtInfoPacket.cpp
                 src/SocketManager.cpp 
                 src/EpollManager.cpp)
 
