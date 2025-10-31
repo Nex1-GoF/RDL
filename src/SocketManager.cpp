@@ -1,9 +1,9 @@
-#include "SocketMananger.hpp"
+#include "SocketManager.hpp"
 #include <iostream>
 
 using namespace std;
 
-int Network::create_and_bind_socket(uint16_t port, sockaddr_in& addr) {
+int SocketManager::create_and_bind_socket(uint16_t port, sockaddr_in& addr) {
     int fd = create_socket();
     set_nonblocking(fd);
     bind_socket(fd, addr, port);
@@ -11,7 +11,7 @@ int Network::create_and_bind_socket(uint16_t port, sockaddr_in& addr) {
     return fd;
 }
 
-int Network::create_socket() {
+int SocketManager::create_socket() {
     int fd = socket(AF_INET, SOCK_DGRAM, 0);
     if (fd < 0) {
         perror("socket creation failed");
@@ -20,7 +20,7 @@ int Network::create_socket() {
     return fd;
 }
 
-void Network::set_nonblocking(int fd) {
+void SocketManager::set_nonblocking(int fd) {
     int flags = fcntl(fd, F_GETFL, 0);
     if (flags < 0 || fcntl(fd, F_SETFL, flags | O_NONBLOCK) < 0) {
         perror("set non-blocking failed");
@@ -29,7 +29,7 @@ void Network::set_nonblocking(int fd) {
     }
 }
 
-void Network::bind_socket(int fd, sockaddr_in& addr, uint16_t port) {
+void SocketManager::bind_socket(int fd, sockaddr_in& addr, uint16_t port) {
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = INADDR_ANY;
     addr.sin_port = htons(port);
@@ -41,7 +41,7 @@ void Network::bind_socket(int fd, sockaddr_in& addr, uint16_t port) {
     }
 }
 
-void Network::setup_sockets() {
+void SocketManager::setup_sockets() {
     tx_fd        = create_and_bind_socket(9000, tx_addr);
     cout << "TX socket created and bound to port 9000" << "\n";
     msl_info_fd  = create_and_bind_socket(9001, msl_info_addr);

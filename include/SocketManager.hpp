@@ -1,5 +1,5 @@
-#ifndef __NETWORK_HPP__
-#define __NETWORK_HPP__
+#ifndef __SOCKET_MANAGER_HPP_
+#define __SOCKET_MANAGER_HPP_
 
 #include <iostream>
 #include <unistd.h>
@@ -9,7 +9,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-class Network {
+class SocketManager {
 private:
     int tx_fd;         // 송신용
     int msl_info_fd;   // 미사일 정보 수신용
@@ -30,8 +30,11 @@ private:
     void bind_socket(int fd, sockaddr_in& addr, uint16_t port);
 
 public:
-    Network() = default;
-    ~Network() {
+    SocketManager() {
+        setup_sockets();
+    }
+    
+    ~SocketManager() {
         close(tx_fd);
         close(msl_info_fd);
         close(msl_com_fd);

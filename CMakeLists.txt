@@ -11,8 +11,15 @@ project(
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# 실행 파일 생성
-add_executable(program src/main.cpp src/packet/HeaderPacket.cpp src/SocketMananger.cpp)
+# 실행 파일 생성 
+add_executable(program 
+                src/main.cpp
+                src/packet/HeaderPacket.cpp
+                src/SocketManager.cpp 
+                src/EpollManager.cpp)
+
+# file(GLOB SRC_FILES "src/*.cpp" "src/**/*.cpp")
+# add_executable(program ${SRC_FILES})
 
 # 헤더 경로 추가
 target_include_directories(program PRIVATE ${CMAKE_SOURCE_DIR}/include)
