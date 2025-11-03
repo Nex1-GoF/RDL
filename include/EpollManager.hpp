@@ -1,51 +1,32 @@
-#ifndef __EPOLLMANAGER_HPP__
-#define __EPOLLMANAGER_HPP__
+#ifndef EPOLL_MANAGER_HPP
+#define EPOLL_MANAGER_HPP
 
-#include <bits/stdc++.h>
-#include <stdlib.h>
+#include <vector>
+#include <cstdint>
 #include <unistd.h>
-#include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/epoll.h>
-#include <errno.h>
 #include <fcntl.h>
+#include <errno.h>
 #include <iostream>
 #include "PacketHandler.hpp"
-
-#define MAX_EVENTS 10
-#define MAXLINE 1024
-
-using namespace std;
 
 class EpollManager {
 private:
     int epoll_fd;
-    int tx_fd;
+
+    static constexpr int MAX_EVENTS = 10;
+    static constexpr int MAXLINE = 1024;
 
 public:
-    EpollManager() {
-        epoll_fd = epoll_create1(0);
-        if (epoll_fd < 0) {
-            perror("epoll creation failed");
-            exit(EXIT_FAILURE);
-        }
-        cout << "epoll creation " << "\n";
-    }
+    EpollManager();
+    ~EpollManager();
 
     void addFd(int fd);
-
-    void waitAndHandle(PacketHandler& handler); 
-
-    void setTxFd(int fd){tx_fd = fd;}
-
-    ~EpollManager() {
-        close(epoll_fd);
-        close(tx_fd);
-    }
+    void waitAndHandle(PacketHandler& handler);
 };
-
 
 #endif

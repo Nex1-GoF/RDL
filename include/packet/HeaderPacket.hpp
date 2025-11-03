@@ -5,31 +5,30 @@
 #include <vector>
 #include <iostream>
 #include <stdexcept>
+#include <cstring>
 
 class HeaderPacket {
 private:
-    char src_type;
-    char src_id;
-    char dest_type;
-    char dest_id;
-    uint32_t seq;
-    uint8_t msg_size;
+    char src_id[5];     // 송신자 ID (예: "D001")
+    char dest_id[5];    // 수신자 ID (예: "M001")
+    uint32_t seq;       // 시퀀스 번호
+    uint8_t msg_size;   // 메시지 크기
 
 public:
-    static const size_t SIZE = 9;
+    static const size_t SIZE = 13;
 
     HeaderPacket() = default;
-    HeaderPacket(char s_type, char s_id, char d_type, char d_id, uint32_t s, uint8_t size);
+    HeaderPacket(const char* s_id, const char* d_id, uint32_t s, uint8_t size);
 
     std::vector<uint8_t> serialize() const;
     static HeaderPacket deserialize(const std::vector<uint8_t>& buffer);
 
     void print() const;
 
-    // Getters
-    char getDestType() const;
-    char getDestId() const;
+    const char* getSrcId() const;
+    const char* getDestId() const;
     uint32_t getSeq() const;
+    uint8_t getMsgSize() const;
 };
 
 #endif

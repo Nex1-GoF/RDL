@@ -1,25 +1,20 @@
-#ifndef __SOCKET_MANAGER_HPP_
-#define __SOCKET_MANAGER_HPP_
+#ifndef SOCKET_MANAGER_HPP
+#define SOCKET_MANAGER_HPP
 
-#include <iostream>
-#include <unistd.h>
-#include <string.h>
-#include <arpa/inet.h>
-#include <fcntl.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include "ConfigManager.hpp"
+#include <netinet/in.h>
 #include <unordered_map>
+#include <string>
 
 class SocketManager {
 public:
-    void setup_sockets(const ConfigManager& config, const std::string& myId);
+    void setup(const ConfigManager& config, const char* myId);
     int get_fd_by_role(const std::string& role) const;
 
 private:
     int create_socket();
     void set_nonblocking(int fd);
-    int create_and_bind_socket(const SocketConfig& config, sockaddr_in& addr);
+    int create_and_bind(const SocketConfig& cfg);
 
     std::unordered_map<std::string, int> roleFdMap;
 };

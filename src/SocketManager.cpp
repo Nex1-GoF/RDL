@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <arpa/inet.h>
+#include <cstring>
 
 int SocketManager::create_socket() {
     int fd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -22,13 +23,14 @@ void SocketManager::set_nonblocking(int fd) {
     }
 }
 
-int SocketManager::create_and_bind_socket(const SocketConfig& config, sockaddr_in& addr) {
+int SocketManager::create_and_bind(const SocketConfig& cfg) {
     int fd = create_socket();
     set_nonblocking(fd);
 
+    sockaddr_in addr{};
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(config.port);
-    inet_pton(AF_INET, config.ip.c_str(), &addr.sin_addr);
+    addr.sin_port = htons(cfg.port);
+    inet_pton(AF_INET, cfg.ip, &addr.sin_addr);
 
     if (bind(fd, reinterpret_cast<const sockaddr*>(&addr), sizeof(addr)) < 0) {
         perror("bind failed");
@@ -36,16 +38,15 @@ int SocketManager::create_and_bind_socket(const SocketConfig& config, sockaddr_i
         exit(EXIT_FAILURE);
     }
 
+    std::cout << "Bound " << cfg.role << " to " << cfg.ip << ":" << cfg.port << std::endl;
     return fd;
 }
 
-void SocketManager::setup_sockets(const ConfigManager& config, const std::string& myId) {
-    auto configs = config.getConfigsById(myId);
-    for (const auto& cfg : configs) {
-        sockaddr_in addr{};
-        int fd = create_and_bind_socket(cfg, addr);
-        roleFdMap[cfg.role] = fd;
-        std::cout << cfg.role << " socket bound to " << cfg.ip << ":" << cfg.port << std::endl;
+void SocketManager::setup(const ConfigManager& config, const char* myId) {
+    auto cfgMap = config.getConfigMapById(myId);
+    for (const auto& [role, cfg] : cfgMap) {
+        int fd = create_and_bind(cfg);
+        roleFdMap[role] = fd;
     }
 }
 
