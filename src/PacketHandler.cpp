@@ -3,9 +3,11 @@
 #include <iostream>
 #include <cstring>
 #include <sys/socket.h>
+#include <arpa/inet.h>
 
-PacketHandler::PacketHandler(const std::unordered_map<int, std::string>& fdRoles)
-    : fdRole(fdRoles) {}
+PacketHandler::PacketHandler(const std::unordered_map<int, std::string>& fdRoles,
+                             const ConfigManager& config)
+    : fdRole(fdRoles), configRef(config) {}
 
 void PacketHandler::handlePacket(const std::vector<uint8_t>& data,
                                  int fd,
@@ -13,43 +15,27 @@ void PacketHandler::handlePacket(const std::vector<uint8_t>& data,
                                  socklen_t addrLen)
 {
     std::string role = fdRole.count(fd) ? fdRole.at(fd) : "unknown";
-
     std::cout << "[PacketHandler] Received on fd " << fd << " (" << role << ")" << std::endl;
 
     try {
         HeaderPacket header = HeaderPacket::deserialize(data);
         header.print();
 
-        // 메시지 타입에 따라 분기 처리
-        if (role == "msl_info") {
-            std::cout << "Processing Missile Info packet..." << std::endl;
-            // 미사일 정보 처리
-        } 
-        else if (role == "msl_com") {
-            std::cout << "Processing Missile Command packet..." << std::endl;
-            // 명령 처리
-        } 
-        else if (role == "tgt_info") {
-            std::cout << "Processing TGT INFO packet..." << std::endl;
-            // TX 처리 로직
-        } 
-        else {
-            std::cout << "Unknown role, default handling..." << std::endl;
+        if (role == "tgt_info") {
+            std::string destId = "M00" + std::string(1, header.getDestId());
+            SocketConfig dest = configRef.getDestination(destId, "tgt_info");
+
+            sockaddr_in targetAddr{};
+            targetAddr.sin_family = AF_INET;
+            targetAddr.sin_port = htons(dest.port);
+            inet_pton(AF_INET, dest.ip.c_str(), &targetAddr.sin_addr);
+
+            std::vector<uint8_t> responseData = header.serialize(); // 예시 응답
+            sendto(fd, responseData.data(), responseData.size(), 0,
+                   (sockaddr*)&targetAddr, sizeof(targetAddr));
+
+            std::cout << "Sent to " << dest.ip << ":" << dest.port << std::endl;
         }
-
-        // 응답 예시
-        HeaderPacket responseHeader(
-            'D', '2',
-            header.getDestType(),
-            header.getDestId(),
-            header.getSeq(),
-            9
-        );
-
-        std::vector<uint8_t> responseData = responseHeader.serialize();
-
-        sendto(fd, responseData.data(), responseData.size(), 0,
-               (const sockaddr*)&clientAddr, addrLen);
 
     } catch (const std::exception& e) {
         std::cerr << "PacketHandler error: " << e.what() << std::endl;

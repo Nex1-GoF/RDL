@@ -26,34 +26,26 @@ int main() {
         return 1;
     }
 
+    std::string myId = "D001"; // 현재 시스템 ID
+
     // 소켓 설정
     SocketManager socketManager;
-    socketManager.setup_sockets(config);
+    socketManager.setup_sockets(config, myId);
 
-    // 3. fd → 역할 매핑
     std::unordered_map<int, std::string> fdRoles;
-    fdRoles[socketManager.get_tx_fd()]        = "tx";
-    fdRoles[socketManager.get_msl_info_fd()]  = "msl_info";
-    fdRoles[socketManager.get_msl_com_fd()]   = "msl_com";
-    fdRoles[socketManager.get_tgt_info_fd()]  = "tgt_info";
-    fdRoles[socketManager.get_src_fd()]       = "src";
+    for (const std::string& role : { "tx", "msl_info", "msl_com", "tgt_info", "src" }) {
+        int fd = socketManager.get_fd_by_role(role);
+        if (fd != -1) fdRoles[fd] = role;
+    }
 
-    // epoll 등록
-    EpollManager epollManager;
+    PacketHandler handler(fdRoles, config);
 
-    epollManager.setTxFd(socketManager.get_tx_fd()); 
+    EpollManager epoll;
+    for (const auto& [fd, role] : fdRoles) {
+        epoll.addFd(fd);
+    }
 
-    epollManager.addFd(socketManager.get_msl_info_fd());
-    epollManager.addFd(socketManager.get_msl_com_fd());
-    epollManager.addFd(socketManager.get_tgt_info_fd());
-    epollManager.addFd(socketManager.get_src_fd());
-
-    // 2. PacketHandler 생성
-    PacketHandler handler(fdRoles);
-
-    // 3. EpollManager에 넘겨서 처리
-    epollManager.waitAndHandle(handler);
-    
+    epoll.waitAndHandle(handler);
     return 0;
 
 }
