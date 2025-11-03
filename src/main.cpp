@@ -22,7 +22,10 @@ int main() {
     EpollManager epollManager;
     cout << "epoll creation try " << "\n";
 
-    epollManager.addFd(socketManager.get_tx_fd());
+    //epollManager.addFd(socketManager.get_tx_fd());
+
+    epollManager.setTxFd(socketManager.get_tx_fd()); 
+
     epollManager.addFd(socketManager.get_msl_info_fd());
     epollManager.addFd(socketManager.get_msl_com_fd());
     epollManager.addFd(socketManager.get_tgt_info_fd());

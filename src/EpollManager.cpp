@@ -68,7 +68,7 @@ void EpollManager::waitAndHandle(const char* hello)
 
                             std::vector<uint8_t> responseData = responseHeader.serialize();
 
-                            sendto(curfd, responseData.data(), responseData.size(), 0,
+                            sendto(tx_fd, responseData.data(), responseData.size(), 0,
                                    (const sockaddr*)&clientAddr, len);
                             std::cout << "Hello message sent." << std::endl;
 

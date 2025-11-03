@@ -22,6 +22,7 @@ using namespace std;
 class EpollManager {
 private:
     int epoll_fd;
+    int tx_fd;
 
 public:
     EpollManager() {
@@ -37,8 +38,11 @@ public:
 
     void waitAndHandle(const char* hello);
 
+    void setTxFd(int fd){tx_fd = fd;}
+
     ~EpollManager() {
         close(epoll_fd);
+        close(tx_fd);
     }
 };
 
