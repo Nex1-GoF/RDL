@@ -30,6 +30,14 @@ int main() {
     SocketManager socketManager;
     socketManager.setup_sockets(config);
 
+    // 3. fd → 역할 매핑
+    std::unordered_map<int, std::string> fdRoles;
+    fdRoles[socketManager.get_tx_fd()]        = "tx";
+    fdRoles[socketManager.get_msl_info_fd()]  = "msl_info";
+    fdRoles[socketManager.get_msl_com_fd()]   = "msl_com";
+    fdRoles[socketManager.get_tgt_info_fd()]  = "tgt_info";
+    fdRoles[socketManager.get_src_fd()]       = "src";
+
     // epoll 등록
     EpollManager epollManager;
 
@@ -40,7 +48,11 @@ int main() {
     epollManager.addFd(socketManager.get_tgt_info_fd());
     epollManager.addFd(socketManager.get_src_fd());
 
-    epollManager.waitAndHandle();
+    // 2. PacketHandler 생성
+    PacketHandler handler(fdRoles);
+
+    // 3. EpollManager에 넘겨서 처리
+    epollManager.waitAndHandle(handler);
     
     return 0;
 
