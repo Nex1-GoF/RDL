@@ -13,6 +13,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <iostream>
+#include "PacketHandler.hpp"
 
 #define MAX_EVENTS 10
 #define MAXLINE 1024
@@ -36,7 +37,7 @@ public:
 
     void addFd(int fd);
 
-    void waitAndHandle();
+    void waitAndHandle(PacketHandler& handler); 
 
     void setTxFd(int fd){tx_fd = fd;}
 

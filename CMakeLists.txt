@@ -17,7 +17,13 @@ add_executable(program
                 src/packet/HeaderPacket.cpp
                 
                 src/SocketManager.cpp 
-                src/EpollManager.cpp)
+                src/EpollManager.cpp
+                src/PacketHandler.cpp
+                src/ConfigManager.cpp
+                )
 
 # 헤더 경로 추가
 target_include_directories(program PRIVATE ${CMAKE_SOURCE_DIR}/include)
+
+# 설정 파일 복사 (파일명 확인 필요)
+configure_file(${CMAKE_SOURCE_DIR}/config_local.txt ${CMAKE_BINARY_DIR}/config.txt COPYONLY)
