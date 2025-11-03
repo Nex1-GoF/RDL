@@ -19,7 +19,7 @@ void EpollManager::addFd(int fd)
     std::cout << "fd added to epoll" << std::endl;
 }
 
-void EpollManager::waitAndHandle(const char* hello)
+void EpollManager::waitAndHandle()
 {
     epoll_event events[MAX_EVENTS];
     uint8_t buffer[MAXLINE];

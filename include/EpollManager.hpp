@@ -36,7 +36,7 @@ public:
 
     void addFd(int fd);
 
-    void waitAndHandle(const char* hello);
+    void waitAndHandle();
 
     void setTxFd(int fd){tx_fd = fd;}
 

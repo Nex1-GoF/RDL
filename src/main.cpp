@@ -31,8 +31,7 @@ int main() {
     epollManager.addFd(socketManager.get_tgt_info_fd());
     epollManager.addFd(socketManager.get_src_fd());
 
-    const char* hello = "Hello from server";
-    epollManager.waitAndHandle(hello);
+    epollManager.waitAndHandle();
     
     return 0;
 
