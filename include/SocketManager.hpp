@@ -9,6 +9,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
+#include "ConfigManager.hpp" 
+
 class SocketManager {
 private:
     int tx_fd;         // 송신용
@@ -24,16 +26,13 @@ private:
     sockaddr_in src_addr{};
 
     // 범용 소켓 생성 및 바인딩 함수
-    int create_and_bind_socket(uint16_t port, sockaddr_in& addr);
+    int create_and_bind_socket(const SocketConfig& config, sockaddr_in& addr);
     int create_socket();
     void set_nonblocking(int fd);
     void bind_socket(int fd, sockaddr_in& addr, uint16_t port);
 
 public:
-    SocketManager() {
-        setup_sockets();
-    }
-    
+    SocketManager() = default;
     ~SocketManager() {
         close(tx_fd);
         close(msl_info_fd);
@@ -42,7 +41,7 @@ public:
         close(src_fd);
     }
 
-    void setup_sockets();
+    void setup_sockets(const ConfigManager& config);
 
     int get_tx_fd() const        { return tx_fd; }
     int get_msl_info_fd() const  { return msl_info_fd; }
@@ -50,7 +49,7 @@ public:
     int get_tgt_info_fd() const  { return tgt_info_fd; }
     int get_src_fd() const       { return src_fd; }
 
-    const sockaddr_in& get_tx_addr() const        { return tx_addr; }
+    const sockaddr_in& smslock() const        { return tx_addr; }
     const sockaddr_in& get_msl_info_addr() const  { return msl_info_addr; }
     const sockaddr_in& get_msl_com_addr() const   { return msl_com_addr; }
     const sockaddr_in& get_tgt_info_addr() const  { return tgt_info_addr; }
