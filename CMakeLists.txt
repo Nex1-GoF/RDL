@@ -16,7 +16,8 @@ add_executable(program
                 src/main.cpp
                 src/packet/HeaderPacket.cpp
                 src/packet/TgtInfoPacket.cpp
-                src/packet/MslInfoPacket.cpp            
+                src/packet/MslInfoPacket.cpp          
+                src/packet/MslCmdPacket.cpp  
                 src/SocketManager.cpp 
                 src/EpollManager.cpp
                 src/PacketHandler.cpp

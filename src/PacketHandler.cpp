@@ -1,5 +1,6 @@
 #include "packet/TgtInfoPacket.hpp"
 #include "packet/MslInfoPacket.hpp"
+#include "packet/MslCmdPacket.hpp"
 #include "PacketHandler.hpp"
 #include <iostream>
 #include <cstring>
@@ -15,7 +16,7 @@ void PacketHandler::handlePacket(const std::vector<uint8_t>& data,
                                  const sockaddr_in& clientAddr,
                                  socklen_t addrLen) {
     const char* recvRole = fdRoleMap[fd];
-    
+
     if (std::strcmp(recvRole, "tgt_info") == 0) {
         TgtInfoPacket pkt = TgtInfoPacket::deserialize(data);
         routePacket(pkt.getHeader(), data, recvRole);
@@ -23,7 +24,8 @@ void PacketHandler::handlePacket(const std::vector<uint8_t>& data,
         MslInfoPacket pkt = MslInfoPacket::deserialize(data);
         routePacket(pkt.getHeader(), data, recvRole);
     } else if (std::strcmp(recvRole, "msl_cmd") == 0) {
-        // MslCmdPacket 처리 로직 추가 예정
+        MslCmdPacket pkt = MslCmdPacket::deserialize(data);
+        routePacket(pkt.getHeader(), data, recvRole);
     } else {
         std::cerr << "[PacketHandler] Unknown role: " << recvRole << std::endl;
     }
