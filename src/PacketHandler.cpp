@@ -1,3 +1,4 @@
+#include "packet/TgtInfoPacket.hpp"
 #include "PacketHandler.hpp"
 #include <iostream>
 #include <cstring>
@@ -12,13 +13,15 @@ void PacketHandler::handlePacket(const std::vector<uint8_t>& data,
                                  int fd,
                                  const sockaddr_in& clientAddr,
                                  socklen_t addrLen) {
-    if (data.size() < HeaderPacket::SIZE) return;
-
-    HeaderPacket header = HeaderPacket::deserialize(data);
-    std::vector<uint8_t> payload(data.begin() + HeaderPacket::SIZE, data.end());
-
     const char* recvRole = fdRoleMap[fd];
-    routePacket(header, payload, recvRole);
+
+    if (std::strcmp(recvRole, "tgt_info") == 0) {
+        TgtInfoPacket pkt = TgtInfoPacket::deserialize(data);
+        const HeaderPacket& header = pkt.getHeader();
+        routePacket(header, data, recvRole);  // 원본 그대로 전송
+    } else {
+        std::cerr << "[PacketHandler] Unknown role: " << recvRole << std::endl;
+    }
 }
 
 void PacketHandler::routePacket(const HeaderPacket& header,
