@@ -1,4 +1,5 @@
 #include "packet/TgtInfoPacket.hpp"
+#include "packet/MslInfoPacket.hpp"
 #include "PacketHandler.hpp"
 #include <iostream>
 #include <cstring>
@@ -14,11 +15,15 @@ void PacketHandler::handlePacket(const std::vector<uint8_t>& data,
                                  const sockaddr_in& clientAddr,
                                  socklen_t addrLen) {
     const char* recvRole = fdRoleMap[fd];
-
+    
     if (std::strcmp(recvRole, "tgt_info") == 0) {
         TgtInfoPacket pkt = TgtInfoPacket::deserialize(data);
-        const HeaderPacket& header = pkt.getHeader();
-        routePacket(header, data, recvRole);  // 원본 그대로 전송
+        routePacket(pkt.getHeader(), data, recvRole);
+    } else if (std::strcmp(recvRole, "msl_info") == 0) {
+        MslInfoPacket pkt = MslInfoPacket::deserialize(data);
+        routePacket(pkt.getHeader(), data, recvRole);
+    } else if (std::strcmp(recvRole, "msl_cmd") == 0) {
+        // MslCmdPacket 처리 로직 추가 예정
     } else {
         std::cerr << "[PacketHandler] Unknown role: " << recvRole << std::endl;
     }
