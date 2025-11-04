@@ -25,10 +25,21 @@ bool ConfigManager::load(const char* filepath) {
             continue;
         }
 
-        std::strncpy(cfg.id, id_buf, sizeof(cfg.id) - 1);
-        std::strncpy(cfg.role, role_buf, sizeof(cfg.role) - 1);
-        std::strncpy(cfg.ip, ip_buf, sizeof(cfg.ip) - 1);
+        // 안전하게 복사하고 널 종료 보장
+        std::strncpy(cfg.id, id_buf, sizeof(cfg.id));
+        cfg.id[sizeof(cfg.id) - 1] = '\0';
+
+        std::strncpy(cfg.role, role_buf, sizeof(cfg.role));
+        cfg.role[sizeof(cfg.role) - 1] = '\0';
+
+        std::strncpy(cfg.ip, ip_buf, sizeof(cfg.ip));
+        cfg.ip[sizeof(cfg.ip) - 1] = '\0';
+
         cfg.port = port;
+
+        // 디버깅 출력
+        std::cout << "[LOAD] id=" << cfg.id << ", role=" << cfg.role
+                  << ", port=" << cfg.port << ", ip=" << cfg.ip << std::endl;
 
         allConfigs.push_back(cfg);
     }
@@ -47,9 +58,10 @@ std::unordered_map<std::string, SocketConfig> ConfigManager::getConfigMapById(co
 }
 
 SocketConfig ConfigManager::getDestination(const char* id, const char* role) const {
+    std::cout << "[GET DEST] id=" << id << ", role=" << role << std::endl;
     for (const auto& cfg : allConfigs) {
-        if (std::strncmp(cfg.id, id, sizeof(cfg.id)) == 0 &&
-            std::strncmp(cfg.role, role, sizeof(cfg.role)) == 0) {
+        if (std::strcmp(cfg.id, id) == 0 &&
+            std::strcmp(cfg.role, role) == 0) {
             return cfg;
         }
     }

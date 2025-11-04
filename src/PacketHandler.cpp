@@ -25,6 +25,7 @@ void PacketHandler::routePacket(const HeaderPacket& header,
                                 const std::vector<uint8_t>& payload,
                                 const char* recvRole) {
     SocketConfig destCfg = configRef.getDestination(header.getDestId(), recvRole);
+    std::cout << destCfg.id << " " << destCfg.role << " " << destCfg.ip << " " << destCfg.port << std::endl;
     if (destCfg.port == -1) {
         std::cerr << "[PacketHandler] No destination for " << std::string(header.getDestId(), 4)
                   << " with role " << recvRole << std::endl;

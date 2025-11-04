@@ -22,8 +22,8 @@ public:
     uint8_t getMsgSize() const;
 
 private:
-    char src_id[4];
-    char dest_id[4];
+    char src_id[5];
+    char dest_id[5];
     uint32_t seq;
     uint8_t msg_size;
 };
