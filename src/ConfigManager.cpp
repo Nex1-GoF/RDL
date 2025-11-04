@@ -1,9 +1,8 @@
 #include "ConfigManager.hpp"
 #include <fstream>
 #include <iostream>
-#include <sstream>
 #include <cstring>
-#include <cstdio>
+#include <sstream>
 
 bool ConfigManager::load(const char* filepath) {
     std::ifstream file(filepath);
@@ -41,7 +40,7 @@ std::unordered_map<std::string, SocketConfig> ConfigManager::getConfigMapById(co
     std::unordered_map<std::string, SocketConfig> result;
     for (const auto& cfg : allConfigs) {
         if (std::strncmp(cfg.id, id, sizeof(cfg.id)) == 0) {
-            result[cfg.role] = cfg;
+            result[std::string(cfg.role)] = cfg;
         }
     }
     return result;

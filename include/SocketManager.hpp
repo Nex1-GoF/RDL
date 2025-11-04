@@ -2,14 +2,13 @@
 #define SOCKET_MANAGER_HPP
 
 #include "ConfigManager.hpp"
-#include <netinet/in.h>
 #include <unordered_map>
 #include <string>
 
 class SocketManager {
 public:
     void setup(const ConfigManager& config, const char* myId);
-    int get_fd_by_role(const std::string& role) const;
+    int get_fd_by_role(const char* role) const;
 
 private:
     int create_socket();

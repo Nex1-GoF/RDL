@@ -50,7 +50,7 @@ void SocketManager::setup(const ConfigManager& config, const char* myId) {
     }
 }
 
-int SocketManager::get_fd_by_role(const std::string& role) const {
-    auto it = roleFdMap.find(role);
+int SocketManager::get_fd_by_role(const char* role) const {
+    auto it = roleFdMap.find(std::string(role));
     return (it != roleFdMap.end()) ? it->second : -1;
 }
