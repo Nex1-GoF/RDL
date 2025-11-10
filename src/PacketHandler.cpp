@@ -19,6 +19,7 @@ void PacketHandler::handlePacket(const std::vector<uint8_t>& data,
 
     if (std::strcmp(recvRole, "tgt_info") == 0) {
         TgtInfoPacket pkt = TgtInfoPacket::deserialize(data);
+        pkt.print();
         routePacket(pkt.getHeader(), data, recvRole);
     } else if (std::strcmp(recvRole, "msl_info") == 0) {
         MslInfoPacket pkt = MslInfoPacket::deserialize(data);

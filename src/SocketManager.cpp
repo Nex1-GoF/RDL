@@ -30,7 +30,9 @@ int SocketManager::create_and_bind(const SocketConfig& cfg) {
     sockaddr_in addr{};
     addr.sin_family = AF_INET;
     addr.sin_port = htons(cfg.port);
-    inet_pton(AF_INET, cfg.ip, &addr.sin_addr);
+    
+    //inet_pton(AF_INET, cfg.ip, &addr.sin_addr);
+    addr.sin_addr.s_addr = INADDR_ANY;
 
     if (bind(fd, reinterpret_cast<const sockaddr*>(&addr), sizeof(addr)) < 0) {
         perror("bind failed");
