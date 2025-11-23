@@ -18,6 +18,7 @@ add_executable(program
                 src/packet/TgtInfoPacket.cpp
                 src/packet/MslInfoPacket.cpp          
                 src/packet/MslCmdPacket.cpp  
+                src/packet/MslKeyPacket.cpp
                 src/SocketManager.cpp 
                 src/EpollManager.cpp
                 src/PacketHandler.cpp
