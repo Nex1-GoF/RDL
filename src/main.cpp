@@ -8,9 +8,9 @@
 int main() {
     const char* myId = "D001";  // 현재 시스템 ID
     // 리눅스
-    const char* configPath = "/home/user/Project/RDL/config_local.txt";
+    // const char* configPath = "/home/user/Project/RDL/config_local.txt";
     // 페타리눅스
-    // const char* configPath = "/home/petalinux/config.txt";
+    const char* configPath = "/home/petalinux/config.txt";
 
     // 1. 설정 로드
     ConfigManager config;
