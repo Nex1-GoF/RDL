@@ -27,8 +27,10 @@ void PacketHandler::handlePacket(const std::vector<uint8_t>& data,
         auto it = mslKeyMap.find(mslId);
         if (it == mslKeyMap.end()) {
             std::cerr << "[PacketHandler] No Key For " << mslId << std::endl;
-            return; 
+            return;
+        }
         const auto& key = it->second;
+
 
         std::vector<uint8_t> encrypted = encryptPayload(data, key);
 
@@ -37,13 +39,28 @@ void PacketHandler::handlePacket(const std::vector<uint8_t>& data,
 
         routePacket(hdr, encrypted, recvRole);
 
-    } else if (std::strcmp(recvRole, "msl_info") == 0) {
-        MslInfoPacket pkt = MslInfoPacket::deserialize(data);
-        routePacket(pkt.getHeader(), data, recvRole);
-    } else if (std::strcmp(recvRole, "msl_cmd") == 0) {
+    } 
+    else if (std::strcmp(recvRole, "msl_info") == 0) {
+        HeaderPacket pkt = HeaderPacket::deserialize(data);
+        std::string mslId(pkt.getSrcId(), 4);
+
+        auto it = mslKeyMap.find(mslId);
+        if (it == mslKeyMap.end()) {
+            std::cerr << "[PacketHandler] No Key For " << mslId << std::endl;
+            return;
+        }
+        const auto& key = it->second;
+
+
+        std::vector<uint8_t> decrypted = decryptPayload(data, key);
+        
+        routePacket(pkt, decrypted, recvRole);
+    } 
+    else if (std::strcmp(recvRole, "msl_cmd") == 0) {
         MslCmdPacket pkt = MslCmdPacket::deserialize(data);
         routePacket(pkt.getHeader(), data, recvRole);
-    } else if (std::strcmp(recvRole, "msl_key") == 0) {
+    } 
+    else if (std::strcmp(recvRole, "msl_key") == 0) {
         MslKeyPacket pkt = MslKeyPacket::deserialize(data);
         mslKeyMap[std::string(pkt.getMslId(), 4)] = pkt.getKey();
         pkt.print();
@@ -52,7 +69,7 @@ void PacketHandler::handlePacket(const std::vector<uint8_t>& data,
         std::cerr << "[PacketHandler] Unknown role: " << recvRole << std::endl;
     }
 }
-}
+
 
 std::vector<uint8_t> PacketHandler::addPkcs7Padding(const std::vector<uint8_t>& plain)
 {
@@ -87,6 +104,33 @@ void PacketHandler::aes256EcbEncrypt(const std::vector<uint8_t>& plain,
     }
 }
 
+void PacketHandler::aes256EcbDecrypt(const std::vector<uint8_t>& cipher,
+                                     std::vector<uint8_t>& plain,
+                                     const std::array<uint8_t, 32>& key)
+{
+    AES_KEY aesKey;
+    AES_set_decrypt_key(key.data(), 256, &aesKey);
+
+    if (cipher.size() % 16 != 0) {
+        plain = cipher;
+        return;
+    }
+
+    std::vector<uint8_t> padded(cipher.size());
+
+    for (size_t i = 0; i < cipher.size(); i += 16) {
+        AES_decrypt(&cipher[i], &padded[i], &aesKey);
+    }
+
+    if (!padded.empty()) {
+        uint8_t padLen = padded.back();
+        if (padLen > 0 && padLen <= 16 && padLen <= padded.size()) {
+            padded.resize(padded.size() - padLen);
+        }
+    }
+    plain = padded;
+}
+
 std::vector<uint8_t> PacketHandler::encryptPayload(
     const std::vector<uint8_t>& fullPacket,
     const std::array<uint8_t, 32>& key)
@@ -111,8 +155,32 @@ std::vector<uint8_t> PacketHandler::encryptPayload(
     return result;
 }
 
+std::vector<uint8_t> PacketHandler::decryptPayload(
+    const std::vector<uint8_t>& fullPacket,
+    const std::array<uint8_t, 32>& key)
+{
+    if (fullPacket.size() <= HEADER_PACKET_SIZE)
+        return fullPacket;
+
+    std::vector<uint8_t> header(fullPacket.begin(),
+                                fullPacket.begin() + HEADER_PACKET_SIZE);
+
+    std::vector<uint8_t> cipherBody(fullPacket.begin() + HEADER_PACKET_SIZE,
+                                    fullPacket.end());
+
+    std::vector<uint8_t> plainBody;
+    aes256EcbDecrypt(cipherBody, plainBody, key);
+
+    std::vector<uint8_t> result;
+    result.reserve(header.size() + plainBody.size());
+    result.insert(result.end(), header.begin(), header.end());
+    result.insert(result.end(), plainBody.begin(), plainBody.end());
+
+    return result;
+}
+
 void PacketHandler::routePacket(const HeaderPacket& header,
-                                const std::vector<uint8_t>& payload,
+                                const std::vector<uint8_t>& packet,
                                 const char* recvRole) {
     SocketConfig destCfg = configRef.getDestination(header.getDestId(), recvRole);
     std::cout << destCfg.id << " " << destCfg.role << " " << destCfg.ip << " " << destCfg.port << std::endl;
@@ -127,7 +195,7 @@ void PacketHandler::routePacket(const HeaderPacket& header,
     destAddr.sin_port = htons(destCfg.port);
     inet_pton(AF_INET, destCfg.ip, &destAddr.sin_addr);
 
-    int sent = sendto(tx_fd, payload.data(), payload.size(), 0,
+    int sent = sendto(tx_fd, packet.data(), packet.size(), 0,
                       (sockaddr*)&destAddr, sizeof(destAddr));
     if (sent < 0) perror("sendto");
 }

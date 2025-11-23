@@ -30,10 +30,17 @@ private:
     std::vector<uint8_t> addPkcs7Padding(const std::vector<uint8_t>& plain);
 
     void aes256EcbEncrypt(const std::vector<uint8_t>& plain,
-                          std::vector<uint8_t>& cipher,
-                          const std::array<uint8_t, 32>& key);
+                        std::vector<uint8_t>& cipher,
+                        const std::array<uint8_t, 32>& key);
+
+    void aes256EcbDecrypt(const std::vector<uint8_t>& cipher,
+                        std::vector<uint8_t>& plain,
+                        const std::array<uint8_t, 32>& key);
 
     std::vector<uint8_t> encryptPayload(const std::vector<uint8_t>& fullPacket,
+                                        const std::array<uint8_t, 32>& key);
+
+    std::vector<uint8_t> decryptPayload(const std::vector<uint8_t>& fullPacket,
                                         const std::array<uint8_t, 32>& key);
 
     std::unordered_map<int, const char*> fdRoleMap;
