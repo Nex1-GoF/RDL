@@ -30,3 +30,9 @@ target_include_directories(program PRIVATE ${CMAKE_SOURCE_DIR}/include)
 
 # 설정 파일 복사 (파일명 확인 필요)
 configure_file(${CMAKE_SOURCE_DIR}/config_local.txt ${CMAKE_BINARY_DIR}/config.txt COPYONLY)
+
+# OpenSSL 찾기
+find_package(OpenSSL REQUIRED)
+
+# 링크
+target_link_libraries(program PRIVATE OpenSSL::Crypto)
