@@ -23,6 +23,7 @@ add_executable(program
                 src/EpollManager.cpp
                 src/PacketHandler.cpp
                 src/ConfigManager.cpp
+                src/SecurityHandler.cpp
                 )
 
 # 헤더 경로 추가
