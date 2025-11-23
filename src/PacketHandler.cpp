@@ -1,6 +1,7 @@
 #include "packet/TgtInfoPacket.hpp"
 #include "packet/MslInfoPacket.hpp"
 #include "packet/MslCmdPacket.hpp"
+#include "packet/MslKeyPacket.hpp"
 #include "PacketHandler.hpp"
 #include <iostream>
 #include <cstring>
@@ -27,7 +28,12 @@ void PacketHandler::handlePacket(const std::vector<uint8_t>& data,
     } else if (std::strcmp(recvRole, "msl_cmd") == 0) {
         MslCmdPacket pkt = MslCmdPacket::deserialize(data);
         routePacket(pkt.getHeader(), data, recvRole);
-    } else {
+    } else if (std::strcmp(recvRole, "msl_key") == 0) {
+        MslKeyPacket pkt = MslKeyPacket::deserialize(data);
+        mslKeyMap[std::string(pkt.getMslId(), 4)] = pkt.getKey();
+        pkt.print();
+    }
+    else {
         std::cerr << "[PacketHandler] Unknown role: " << recvRole << std::endl;
     }
 }

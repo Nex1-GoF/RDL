@@ -27,6 +27,8 @@ private:
     std::unordered_map<int, const char*> fdRoleMap;
     const ConfigManager& configRef;
     int tx_fd;
+
+    std::unordered_map<std::string, std::array<uint8_t, 32>> mslKeyMap;
 };
 
 #endif
