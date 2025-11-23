@@ -22,7 +22,6 @@ void PacketHandler::handlePacket(const std::vector<uint8_t>& data,
     if (std::strcmp(recvRole, "tgt_info") == 0) {
         TgtInfoPacket pkt = TgtInfoPacket::deserialize(data);
         pkt.print();
-
         std::string mslId(pkt.getHeader().getDestId(), 4);
 
         auto it = mslKeyMap.find(mslId);
@@ -32,14 +31,10 @@ void PacketHandler::handlePacket(const std::vector<uint8_t>& data,
         }
         const auto& key = it->second;
 
-        //std::vector<uint8_t> encrypted = encryptPayload(data, key);
         std::vector<uint8_t> encrypted = SecurityHandler::encryptPayload(data, key);
 
-        HeaderPacket hdr = HeaderPacket::deserialize(
-        std::vector<uint8_t>(encrypted.begin(), encrypted.begin() + HEADER_PACKET_SIZE));
-
+        HeaderPacket hdr = pkt.getHeader();
         routePacket(hdr, encrypted, recvRole);
-
     } 
     else if (std::strcmp(recvRole, "msl_info") == 0) {
         HeaderPacket pkt = HeaderPacket::deserialize(data);
@@ -52,14 +47,26 @@ void PacketHandler::handlePacket(const std::vector<uint8_t>& data,
         }
         const auto& key = it->second;
 
-        //std::vector<uint8_t> decrypted = decryptPayload(data, key);
         std::vector<uint8_t> decrypted = SecurityHandler::decryptPayload(data, key);
 
         routePacket(pkt, decrypted, recvRole);
     } 
     else if (std::strcmp(recvRole, "msl_cmd") == 0) {
         MslCmdPacket pkt = MslCmdPacket::deserialize(data);
-        routePacket(pkt.getHeader(), data, recvRole);
+        pkt.print();
+        std::string mslId(pkt.getHeader().getDestId(), 4);
+
+        auto it = mslKeyMap.find(mslId);
+        if (it == mslKeyMap.end()) {
+            std::cerr << "[PacketHandler] No Key For " << mslId << std::endl;
+            return;
+        }
+        const auto& key = it->second;
+
+        std::vector<uint8_t> encrypted = SecurityHandler::encryptPayload(data, key);
+
+        HeaderPacket hdr = pkt.getHeader();
+        routePacket(hdr, encrypted, recvRole);
     } 
     else if (std::strcmp(recvRole, "msl_key") == 0) {
         MslKeyPacket pkt = MslKeyPacket::deserialize(data);
